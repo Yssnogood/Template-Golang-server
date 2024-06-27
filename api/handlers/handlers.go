@@ -1,43 +1,54 @@
 package handlers
 
 import (
-	"fmt"
+	"html/template"
 	"log"
 	"net/http"
-	"text/template"
 )
 
-var (
-	index, _  = template.ParseFiles("web/templates/index.html")
-	err404, _ = template.ParseFiles("web/templates/err404.html")
-	data      = PageData{
-		Resultat: "",
-		Title:    "Groupie-Tracker",
+type Page struct {
+	Title string
+	Error string
+}
+
+const webTitle string = "Web-Template"
+
+func RenderTemplate(w http.ResponseWriter, tmpl string, page Page) {
+	t, err := template.ParseFiles("./web/templates/" + tmpl + ".html")
+
+	if err != nil {
+		ErrorPage(w, http.StatusBadRequest, Page{Title: webTitle, Error: "Error 400"})
+		return
 	}
-)
 
-// Handler of the main page
-func HandleHome(w http.ResponseWriter, r *http.Request) {
+	if err := t.Execute(w, page); err != nil {
+		ErrorPage(w, http.StatusBadRequest, Page{Title: webTitle, Error: "Error 400"})
+		return
+	}
+}
+
+func Home(w http.ResponseWriter, r *http.Request) {
 
 	if r.URL.Path == "/favicon.ico" {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	// Management of 404 error
 	if r.URL.Path != "/" {
-		err404.Execute(w, nil)
-		log.Printf("Error 404: Page not found for path %s", r.URL.Path)
+		ErrorPage(w, http.StatusNotFound, Page{Title: webTitle, Error: "Error 404"})
 		return
 	}
 
-	err := index.Execute(w, data)
-	if err != nil {
-		log.Printf("Template execution error: %v", err)
-		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Println(err)
-	} else {
-		log.Printf("Status OK : %v", http.StatusOK)
+	switch r.Method {
+	case "GET":
+		RenderTemplate(w, "Index", Page{Title: webTitle})
+		log.Printf("HTTP Response Code : %v", (http.StatusOK))
+	default:
+		ErrorPage(w, http.StatusMethodNotAllowed, Page{Title: webTitle, Error: "Error 405"})
 	}
+}
 
+func ErrorPage(w http.ResponseWriter, errorCode int, page Page) {
+	RenderTemplate(w, "Error", page)
+	log.Printf("HTTP Response Code : %v", errorCode)
 }

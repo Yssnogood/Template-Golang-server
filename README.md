@@ -30,3 +30,8 @@ Open your browser and navigate to `http://localhost:8080` to see the home page
 ### 4. Time to code
 Now, go and create your own app ! 
 Have fun coding :)
+
+
+## Special Thanks 
+
+Thanks to [Adri](https://github.com/Adridri7) for helping with the handlers part and making a cleaner code.
