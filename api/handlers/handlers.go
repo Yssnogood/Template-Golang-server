@@ -41,7 +41,7 @@ func Home(w http.ResponseWriter, r *http.Request) {
 
 	switch r.Method {
 	case "GET":
-		RenderTemplate(w, "Index", Page{Title: webTitle})
+		RenderTemplate(w, "index", Page{Title: webTitle})
 		log.Printf("HTTP Response Code : %v", (http.StatusOK))
 	default:
 		ErrorPage(w, http.StatusMethodNotAllowed, Page{Title: webTitle, Error: "Error 405"})
@@ -49,6 +49,6 @@ func Home(w http.ResponseWriter, r *http.Request) {
 }
 
 func ErrorPage(w http.ResponseWriter, errorCode int, page Page) {
-	RenderTemplate(w, "Error", page)
+	RenderTemplate(w, "error", page)
 	log.Printf("HTTP Response Code : %v", errorCode)
 }
